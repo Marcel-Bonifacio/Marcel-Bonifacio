@@ -110,7 +110,7 @@ def build(u):
         ("LANGUAGES", len(langs), "#06d6a0"),
     ]
 
-    W, H = 900, 236
+    W, H = 900, 276
     BLUES = ["#90e0ef", "#00b4d8", "#0096c7", "#3a86ff", "#4361ee", "#3f37c9"]
     out = []
     add = out.append
@@ -136,35 +136,38 @@ def build(u):
             f'fill="{rnd.choice(BLUES + ["#ffffff"])}" style="animation-duration:{rnd.uniform(1.4, 3.6):.2f}s;'
             f'animation-delay:-{rnd.uniform(0, 3):.2f}s"/>')
 
+    LABEL = "#b6c2d9"  # light enough to read on the dark card
     # HUD + walls
     add(pixel_text("PLAYER STATS", 26, 16, 3, "#90e0ef"))
-    add(pixel_text("LAST 12 MONTHS", W - 26, 18, 2, "#8b949e", anchor="end"))
-    for y in (42, 200):
+    add(pixel_text("LAST 12 MONTHS", W - 26, 16, 3, LABEL, anchor="end"))
+    for y in (42, 240):
         add("".join(f'<rect x="{x}" y="{y}" width="6" height="6" fill="url(#rb)"/>' for x in range(14, W - 14, 9)))
 
     # stats row
     for i, (label, value, color) in enumerate(stats):
         x, y = 30 + i * 215, 62
-        add(pixel_text(label, x, y, 2, "#8b949e"))
-        add(pixel_text(fmt(value), x + 3, y + 21, 6, "#020617"))  # drop shadow
-        add(pixel_text(fmt(value), x, y + 18, 6, color))
+        add(pixel_text(label, x, y, 3, LABEL))
+        add(pixel_text(fmt(value), x + 3, y + 27, 6, "#020617"))  # drop shadow
+        add(pixel_text(fmt(value), x, y + 24, 6, color))
 
-    # top languages: pixel loading bar that fills block by block, then a legend
-    add(pixel_text("TOP LANGUAGES", 30, 126, 2, "#8b949e"))
+    # top languages: pixel loading bar that fills block by block, then a table
+    add(pixel_text("TOP LANGUAGES", 30, 130, 3, LABEL))
     blocks = 84
     segs = []
     for name, (size, color) in top:
         segs += [color] * round(size / total * blocks)
     segs = segs[:blocks]
-    add("".join(f'<rect x="{30 + i * 10}" y="144" width="8" height="14" fill="#152553"/>' for i in range(blocks)))
-    add("".join(f'<rect class="px" x="{30 + i * 10}" y="144" width="8" height="14" fill="{c}" '
+    add("".join(f'<rect x="{30 + i * 10}" y="152" width="8" height="14" fill="#152553"/>' for i in range(blocks)))
+    add("".join(f'<rect class="px" x="{30 + i * 10}" y="152" width="8" height="14" fill="{c}" '
                 f'style="animation-delay:{0.3 + i * 0.03:.2f}s"/>' for i, c in enumerate(segs)))
+    col_w = 280
     for i, (name, (size, color)) in enumerate(top):
-        lx = 30 + i * 140
-        add(f'<rect x="{lx}" y="170" width="10" height="10" fill="{color}"/>')
-        add(pixel_text(f"{name} {size / total * 100:.0f}%", lx + 16, 170, 2, "#e6edf3"))
+        lx, ly = 30 + (i % 3) * col_w, 182 + (i // 3) * 28
+        add(f'<rect x="{lx}" y="{ly}" width="15" height="15" fill="{color}"/>')
+        add(pixel_text(f"{size / total * 100:.0f}%", lx + 24, ly, 3, "#ffd166"))
+        add(pixel_text(name, lx + 24 + 54, ly, 3, "#ffffff"))
 
-    add(pixel_text(f"UPDATED {datetime.date.today().isoformat()}", W - 26, 216, 2, "#4361ee", anchor="end"))
+    add(pixel_text(f"UPDATED {datetime.date.today().isoformat()}", W - 26, 254, 2, "#7f93e6", anchor="end"))
     add("</g></svg>")
     return "".join(out)
 
